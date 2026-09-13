@@ -8,6 +8,12 @@ import {
   BasinSimulationResult,
   BasinRainfallForecast,
 } from '../types/flood';
+import {
+  partitionRainfallInfiltration,
+  updateSoilState,
+  calculateRemainingStorage,
+} from './soilInfiltrationModel';
+import { calculateRiskExplanation } from './riskExplanationEngine';
 
 /**
  * 1. updateZoneWaterLevel
@@ -167,6 +173,13 @@ export function simulateFloodPropagation(
       areaKm2: number;
       slope: number;
       storageCapacity: number;
+      soilType: string;
+      porosity: number;
+      infiltrationCapacity: number;
+      currentSoilMoisture: number;
+      saturation: number;
+      remainingStorage: number;
+      elevation: number;
     }
   > = {};
 
@@ -177,20 +190,33 @@ export function simulateFloodPropagation(
     const incomingFlow = zone.currentState.incomingFlow || 0;
     const outgoingFlow = zone.currentState.outgoingFlow || Math.round(incomingFlow * 0.9);
     const rainfall = zone.currentState.rainfallCurrent || 0;
-    const soilSaturation = zone.currentState.soilSaturation || 75;
+    const saturation = zone.currentState.saturation || zone.currentState.soilSaturation || 75;
     const slope = zone.currentState.slope || zone.currentState.terrain?.averageSlopePercent || 10;
     const storageCapacity = zone.storageCapacity || zone.areaKm2 * 100_000;
+    const soilType = zone.currentState.soilType || zone.currentState.terrain?.soilType || 'Alluvial Silt Loam';
+    const porosity = zone.currentState.porosity || 0.45;
+    const infiltrationCapacity = zone.currentState.infiltrationCapacity || 32.0;
+    const currentSoilMoisture = zone.currentState.currentSoilMoisture || 34.0;
+    const remainingStorage = zone.currentState.remainingStorage ?? calculateRemainingStorage(400, porosity, saturation);
+    const elevation = zone.elevationMeters || zone.currentState.elevation || 100;
 
     currentStates[zone.id] = {
       waterLevel: currentWaterLevel,
       incomingFlow,
       outgoingFlow,
       rainfall,
-      soilSaturation,
+      soilSaturation: saturation,
       dangerThreshold,
       areaKm2: zone.areaKm2,
       slope,
       storageCapacity,
+      soilType,
+      porosity,
+      infiltrationCapacity,
+      currentSoilMoisture,
+      saturation,
+      remainingStorage,
+      elevation,
     };
   }
 
@@ -216,6 +242,18 @@ export function simulateFloodPropagation(
   for (const zone of initialConditions) {
     const state = currentStates[zone.id];
     const risk = calculateRisk(state.waterLevel, state.dangerThreshold, 0);
+    const initialRiskExp = calculateRiskExplanation({
+      waterLevel: state.waterLevel,
+      dangerThreshold: state.dangerThreshold,
+      riseRate: 0,
+      rainfallMmPerHour: state.rainfall,
+      soilSaturation: state.saturation,
+      incomingFlow: state.incomingFlow,
+      flowCapacity: 1600,
+      slopePercent: state.slope,
+      elevationMeters: state.elevation,
+      remainingStorageMm: state.remainingStorage,
+    });
 
     stepZeroStates[zone.id] = {
       timestepHour: 0,
@@ -224,9 +262,18 @@ export function simulateFloodPropagation(
       incomingFlow: state.incomingFlow,
       outgoingFlow: state.outgoingFlow,
       rainfall: state.rainfall,
-      soilSaturation: state.soilSaturation,
+      soilSaturation: state.saturation,
       riskLevel: risk,
       dangerThreshold: state.dangerThreshold,
+      soilType: state.soilType,
+      porosity: state.porosity,
+      infiltrationCapacity: state.infiltrationCapacity,
+      currentSoilMoisture: state.currentSoilMoisture,
+      saturation: state.saturation,
+      remainingStorage: state.remainingStorage,
+      actualInfiltration: 0,
+      surfaceRunoff: 0,
+      riskExplanation: initialRiskExp,
     };
   }
 
@@ -248,7 +295,7 @@ export function simulateFloodPropagation(
     const hourZoneStates: Record<string, ZoneSimulationState> = {};
     const hourEdgeDischarges: Record<string, number> = {};
 
-    // 1. Calculate incoming flows and updated rainfall for this hour
+    // 1. Calculate incoming flows, soil infiltration and updated rainfall for this hour
     for (const zone of initialConditions) {
       const state = currentStates[zone.id];
 
@@ -262,46 +309,55 @@ export function simulateFloodPropagation(
         simulatedRain = parseFloat((state.rainfall * stormDecay).toFixed(1));
       }
 
-      // Soil saturation increases nonlinearly with rainfall volume, or slowly drains
-      const satDelta =
-        simulatedRain > 25
-          ? 3.8
-          : simulatedRain > 12
-          ? 2.2
-          : simulatedRain > 4
-          ? 0.9
-          : -0.6;
-      const newSoilSat = Math.min(
-        99,
-        Math.max(42, Math.round(state.soilSaturation + satDelta))
+      // 2. Explainable Infiltration Model: partition rainfall into infiltration vs surface runoff
+      const { actualInfiltrationMmPerHour, surfaceRunoffMmPerHour } =
+        partitionRainfallInfiltration(
+          simulatedRain,
+          state.infiltrationCapacity,
+          state.saturation,
+          state.remainingStorage
+        );
+
+      // 3. Update Soil State (moisture increases, remaining storage depletes, capacity decays)
+      const soilUpdate = updateSoilState(
+        state.saturation,
+        state.porosity,
+        actualInfiltrationMmPerHour,
+        0.7,
+        400,
+        34.0
       );
-      state.soilSaturation = newSoilSat;
+      state.currentSoilMoisture = soilUpdate.currentSoilMoisture;
+      state.saturation = soilUpdate.saturation;
+      state.soilSaturation = soilUpdate.saturation;
+      state.remainingStorage = soilUpdate.remainingStorage;
+      state.infiltrationCapacity = soilUpdate.infiltrationCapacity;
 
       // Inflow from scheduled transit arrivals at this hour
       const scheduledInflow = Math.round(transitSchedule[zone.id]?.[hour] || 0);
 
-      // Base inflow for headwaters without upstream edges + local tributary precipitation yield
+      // Direct overland surface runoff generated from excess precipitation
       const isHeadwater = (zone.upstreamZoneIds || []).length === 0;
-      const headwaterRunoffScale = isHeadwater ? 0.22 : 0.04;
-      const saturationMultiplier = Math.max(0.6, newSoilSat / 65);
-      const localCatchmentInflow = Math.round(
-        simulatedRain * state.areaKm2 * headwaterRunoffScale * saturationMultiplier
+      const runoffScale = isHeadwater ? 0.24 : 0.06;
+      const saturationMultiplier = Math.max(0.6, state.saturation / 65);
+      const localRunoffInflow = Math.round(
+        (surfaceRunoffMmPerHour + simulatedRain * 0.1) * state.areaKm2 * runoffScale * saturationMultiplier
       );
-      const totalIncomingFlow = scheduledInflow + localCatchmentInflow;
+      const totalIncomingFlow = scheduledInflow + localRunoffInflow;
       state.incomingFlow = totalIncomingFlow;
 
-      // 2. Update Zone Water Level
+      // 4. Update Zone Water Level
       const { newWaterLevel, riseRate } = updateZoneWaterLevel(
         state.waterLevel,
         totalIncomingFlow,
         state.outgoingFlow,
-        simulatedRain,
+        surfaceRunoffMmPerHour,
         state.areaKm2,
-        newSoilSat
+        state.saturation
       );
       state.waterLevel = newWaterLevel;
 
-      // 3. Calculate Outgoing Flow
+      // 5. Calculate Outgoing Flow
       const outgoingEdges = edgesBySource[zone.id] || [];
       const baseCapacity = outgoingEdges.reduce((acc, e) => acc + e.flowCapacityM3PerSec, 0) || 1200;
       const newOutgoingFlow = calculateOutgoingFlow(
@@ -312,7 +368,7 @@ export function simulateFloodPropagation(
       );
       state.outgoingFlow = newOutgoingFlow;
 
-      // 4. Propagate Flow along Outgoing Edges
+      // 6. Propagate Flow along Outgoing Edges
       propagateFlow(newOutgoingFlow, outgoingEdges, hour, transitSchedule);
 
       // Record edge discharges for map animation
@@ -323,10 +379,22 @@ export function simulateFloodPropagation(
         }
       }
 
-      // 5. Calculate Flood Risk
+      // 7. Calculate Flood Risk & Explainable Contributors
       const risk = calculateRisk(newWaterLevel, state.dangerThreshold, riseRate);
+      const riskExplanation = calculateRiskExplanation({
+        waterLevel: newWaterLevel,
+        dangerThreshold: state.dangerThreshold,
+        riseRate,
+        rainfallMmPerHour: simulatedRain,
+        soilSaturation: state.saturation,
+        incomingFlow: totalIncomingFlow,
+        flowCapacity: baseCapacity,
+        slopePercent: state.slope,
+        elevationMeters: state.elevation,
+        remainingStorageMm: state.remainingStorage,
+      });
 
-      // 6. Store Step State
+      // 8. Store Step State
       hourZoneStates[zone.id] = {
         timestepHour: hour,
         waterLevel: newWaterLevel,
@@ -334,9 +402,18 @@ export function simulateFloodPropagation(
         incomingFlow: totalIncomingFlow,
         outgoingFlow: newOutgoingFlow,
         rainfall: simulatedRain,
-        soilSaturation: newSoilSat,
+        soilSaturation: state.saturation,
         riskLevel: risk,
         dangerThreshold: state.dangerThreshold,
+        soilType: state.soilType,
+        porosity: state.porosity,
+        infiltrationCapacity: state.infiltrationCapacity,
+        currentSoilMoisture: state.currentSoilMoisture,
+        saturation: state.saturation,
+        remainingStorage: state.remainingStorage,
+        actualInfiltration: actualInfiltrationMmPerHour,
+        surfaceRunoff: surfaceRunoffMmPerHour,
+        riskExplanation,
       };
     }
 

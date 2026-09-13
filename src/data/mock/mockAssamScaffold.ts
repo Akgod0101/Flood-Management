@@ -1,4 +1,10 @@
 import { Basin, FlowEdge, Zone, ZoneState, Sensor, RiskLevel, SimulationStep } from '../models';
+import {
+  calculateRemainingStorage,
+  calculateEffectiveInfiltrationCapacity,
+  partitionRainfallInfiltration,
+} from '../../engine/soilInfiltrationModel';
+import { generateRiskExplanation } from '../../engine/riskExplanationEngine';
 
 /**
  * ============================================================================
@@ -1406,6 +1412,40 @@ export const ASSAM_ZONES: Zone[] = [
     sensors: [],
   },
 ];
+
+// Populate baseline soil attributes and explainable risk scores for all 20 Assam reaches
+ASSAM_ZONES.forEach((zone) => {
+  const s = zone.currentState;
+  const soilType = s.terrain?.soilType || 'Alluvial Silt Loam';
+  const porosity = 0.46;
+  const sat = s.soilSaturation || 75;
+  const moisture = s.soilMoisture || 68;
+  const remStorage = calculateRemainingStorage(400, porosity, sat);
+  const cap = calculateEffectiveInfiltrationCapacity(32, sat);
+  const partition = partitionRainfallInfiltration(s.rainfall || 0, 32, sat, remStorage);
+
+  s.soilType = soilType;
+  s.porosity = porosity;
+  s.infiltrationCapacity = cap;
+  s.currentSoilMoisture = moisture;
+  s.saturation = sat;
+  s.remainingStorage = remStorage;
+  s.actualInfiltration = partition.actualInfiltrationMmPerHour;
+  s.surfaceRunoff = partition.surfaceRunoffMmPerHour;
+
+  s.riskExplanation = generateRiskExplanation({
+    waterLevel: s.waterLevel,
+    dangerThreshold: s.dangerThreshold,
+    riseRate: s.waterLevelRiseRate,
+    rainfallMmPerHour: s.rainfall,
+    soilSaturation: sat,
+    incomingFlow: s.incomingFlow,
+    flowCapacity: zone.storageCapacity * 6 || 3000,
+    slopePercent: zone.meanSlope,
+    elevationMeters: zone.elevation,
+    remainingStorageMm: remStorage,
+  });
+});
 
 /**
  * 28 Directed Flow Edges for the Assam Brahmaputra River Network

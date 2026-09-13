@@ -7,8 +7,15 @@ import {
   TimeSeriesPoint,
   BasinRainfallForecast,
   RainfallScenario,
+  RiskContributor,
 } from '@/types/flood';
 import { ForecastPanel } from './ForecastPanel';
+import {
+  calculateRemainingStorage,
+  calculateEffectiveInfiltrationCapacity,
+  partitionRainfallInfiltration,
+} from '@/engine/soilInfiltrationModel';
+import { generateRiskExplanation } from '@/engine/riskExplanationEngine';
 import {
   Activity,
   ArrowUpRight,
@@ -27,6 +34,7 @@ import {
   Waves,
   ShieldAlert,
   Compass,
+  Droplets,
 } from 'lucide-react';
 
 interface ZoneDetailsPanelProps {
@@ -414,6 +422,34 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
   const thresholdRatio = Math.min(100, Math.round((state.currentWaterLevel / state.dangerThreshold) * 100));
   const netFlow = state.incomingFlow - state.outgoingFlow;
 
+  // Derived soil and infiltration parameters
+  const soilType = state.soilType || state.terrain?.soilType || 'Alluvial Silt Loam';
+  const porosity = state.porosity ?? 0.46;
+  const soilSaturation = state.saturation ?? state.soilSaturation ?? 75;
+  const soilMoisture = state.currentSoilMoisture ?? state.soilMoisture ?? 68;
+  const remainingStorage = state.remainingStorage ?? calculateRemainingStorage(400, porosity, soilSaturation);
+  const infiltrationCapacity = state.infiltrationCapacity ?? calculateEffectiveInfiltrationCapacity(32, soilSaturation);
+
+  // Infiltration vs surface runoff partition
+  const rainfallRate = state.rainfallCurrent || state.rainfall || 0;
+  const partition = partitionRainfallInfiltration(rainfallRate, 32, soilSaturation, remainingStorage);
+  const actualInfiltration = state.actualInfiltration !== undefined ? state.actualInfiltration : partition.actualInfiltrationMmPerHour;
+  const surfaceRunoff = state.surfaceRunoff !== undefined ? state.surfaceRunoff : partition.surfaceRunoffMmPerHour;
+
+  // Explainable Risk Attribution (Transparent weighted rules, no ML)
+  const riskExplanation = state.riskExplanation || generateRiskExplanation({
+    waterLevel: state.currentWaterLevel,
+    dangerThreshold: state.dangerThreshold,
+    riseRate: state.waterLevelRiseRate,
+    rainfallMmPerHour: rainfallRate,
+    soilSaturation: soilSaturation,
+    incomingFlow: state.incomingFlow,
+    flowCapacity: selectedZone.storageCapacity * 6 || 3000,
+    slopePercent: selectedZone.meanSlope,
+    elevationMeters: selectedZone.elevation,
+    remainingStorageMm: remainingStorage,
+  });
+
   return (
     <aside className="w-96 h-full border-l border-slate-800/80 bg-slate-950/95 flex flex-col z-20 shrink-0 select-none overflow-y-auto">
       {/* Top sticky Zone Header */}
@@ -605,55 +641,158 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
         </div>
 
         {/* ======================================================== */}
-        {/* SECTION 3: SOIL */}
+        {/* SECTION 3: SOIL & INFILTRATION MODEL */}
         {/* ======================================================== */}
-        <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+        <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-cyan-400" />
-              3. Soil Conditions
+              3. Soil Conditions & Infiltration
             </span>
-            <span className="font-mono text-emerald-400 text-[11px]">
-              {state.soilSaturation}% Saturated
+            <span
+              className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded border ${
+                soilSaturation >= 90
+                  ? 'bg-rose-950/70 border-rose-700/60 text-rose-300'
+                  : soilSaturation >= 75
+                  ? 'bg-amber-950/70 border-amber-700/60 text-amber-300'
+                  : 'bg-emerald-950/70 border-emerald-700/60 text-emerald-300'
+              }`}
+            >
+              {soilSaturation}% Saturated
             </span>
           </div>
 
+          {/* Soil Stratum & Porosity */}
+          <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 space-y-1">
+            <div className="flex items-center justify-between text-[10px] text-slate-400">
+              <span className="uppercase font-semibold tracking-wide">Soil Stratum & Type</span>
+              <span className="font-mono text-cyan-300">Porosity: {(porosity * 100).toFixed(0)}% ({porosity})</span>
+            </div>
+            <div className="text-xs font-semibold text-slate-100 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+              {soilType}
+            </div>
+          </div>
+
+          {/* Hydrological Matrix: Moisture, Saturation, Capacity, Remaining Storage */}
           <div className="grid grid-cols-2 gap-2 text-[11px]">
             <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800">
               <span className="text-slate-400 block text-[10px]">Volumetric Moisture</span>
               <span className="font-mono font-bold text-white mt-0.5 block">
-                {state.soilMoisture}%
+                {soilMoisture.toFixed(1)}%
               </span>
+              <span className="text-[9px] text-slate-500 block">Active Root Zone</span>
             </div>
             <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800">
               <span className="text-slate-400 block text-[10px]">Pore Saturation</span>
-              <span className={`font-mono font-bold mt-0.5 block ${state.soilSaturation > 85 ? 'text-amber-400' : 'text-slate-200'}`}>
-                {state.soilSaturation}%
+              <span
+                className={`font-mono font-bold mt-0.5 block ${
+                  soilSaturation > 85 ? 'text-rose-400' : soilSaturation > 70 ? 'text-amber-400' : 'text-emerald-400'
+                }`}
+              >
+                {soilSaturation}%
               </span>
+              <span className="text-[9px] text-slate-500 block">Fraction of Void Space</span>
+            </div>
+            <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+              <span className="text-slate-400 block text-[10px]">Infiltration Capacity</span>
+              <span className="font-mono font-bold text-cyan-300 mt-0.5 block">
+                {infiltrationCapacity.toFixed(1)} mm/h
+              </span>
+              <span className="text-[9px] text-slate-500 block">Horton / Green-Ampt</span>
+            </div>
+            <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+              <span className="text-slate-400 block text-[10px]">Remaining Storage</span>
+              <span
+                className={`font-mono font-bold mt-0.5 block ${
+                  remainingStorage <= 15 ? 'text-rose-400' : 'text-indigo-300'
+                }`}
+              >
+                {remainingStorage.toFixed(1)} mm
+              </span>
+              <span className="text-[9px] text-slate-500 block">Available Retention</span>
             </div>
           </div>
 
-          {/* Saturation bar indicator */}
+          {/* Saturation Bar */}
           <div className="space-y-1">
+            <div className="flex justify-between text-[10px] text-slate-400">
+              <span>Soil Column Saturation</span>
+              <span className="font-mono">{soilSaturation}%</span>
+            </div>
             <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-all duration-300"
                 style={{
-                  width: `${state.soilSaturation}%`,
+                  width: `${soilSaturation}%`,
                   backgroundColor:
-                    state.soilSaturation >= 90
+                    soilSaturation >= 90
                       ? '#f43f5e'
-                      : state.soilSaturation >= 75
+                      : soilSaturation >= 75
                       ? '#f59e0b'
                       : '#10b981',
                 }}
               />
             </div>
-            <span className="text-[10px] text-slate-500 block italic">
-              {state.soilSaturation > 85
-                ? 'Soil saturated: Zero retention, accelerating direct surface runoff'
-                : 'Pores unsaturated: Normal sub-surface infiltration active'}
-            </span>
+          </div>
+
+          {/* Explainable Infiltration vs Runoff Partition Card */}
+          <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/90 space-y-2">
+            <div className="flex items-center justify-between text-[10px]">
+              <span className="font-semibold text-slate-300 flex items-center gap-1">
+                <Droplets className="w-3 h-3 text-cyan-400" />
+                Rainfall Partitioning Mechanics
+              </span>
+              <span className="font-mono text-slate-400">Rain: {rainfallRate.toFixed(1)} mm/h</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-[10.5px]">
+              <div className="p-1.5 rounded bg-slate-900/90 border border-emerald-900/40">
+                <span className="text-slate-400 text-[9.5px] block">Absorbed Infiltration</span>
+                <span className="font-mono font-bold text-emerald-400 mt-0.5 block">
+                  {actualInfiltration.toFixed(1)} mm/h
+                </span>
+              </div>
+              <div className="p-1.5 rounded bg-slate-900/90 border border-rose-900/40">
+                <span className="text-slate-400 text-[9.5px] block">Excess Surface Runoff</span>
+                <span className="font-mono font-bold text-rose-400 mt-0.5 block">
+                  {surfaceRunoff.toFixed(1)} mm/h
+                </span>
+              </div>
+            </div>
+
+            {/* Split Bar */}
+            {rainfallRate > 0 && (
+              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden flex">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-300"
+                  style={{ width: `${Math.round((actualInfiltration / rainfallRate) * 100)}%` }}
+                  title={`Infiltrating: ${actualInfiltration.toFixed(1)} mm/h`}
+                />
+                <div
+                  className="h-full bg-rose-500 transition-all duration-300"
+                  style={{ width: `${Math.round((surfaceRunoff / rainfallRate) * 100)}%` }}
+                  title={`Runoff: ${surfaceRunoff.toFixed(1)} mm/h`}
+                />
+              </div>
+            )}
+
+            {/* Dynamic Physical Explanation */}
+            <div className="text-[10px] text-slate-400 leading-relaxed italic bg-slate-900/50 p-1.5 rounded border border-slate-800/60">
+              {soilSaturation >= 85 ? (
+                <span className="text-rose-300">
+                  ⚠️ <strong>Soil saturated:</strong> Pore storage depleted and infiltration capacity decayed. Excess rainfall generates direct overland runoff, immediately surging river stage.
+                </span>
+              ) : soilSaturation >= 70 ? (
+                <span className="text-amber-300">
+                  ⚡ <strong>Constricted capacity:</strong> Infiltration decaying non-linearly. Significant precipitation partitioning into surface runoff.
+                </span>
+              ) : (
+                <span className="text-emerald-300">
+                  ✓ <strong>Unsaturated soil:</strong> High infiltration capacity absorbs incoming precipitation into soil pore matrix before surface ponding.
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -790,6 +929,131 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
               </ul>
             </div>
           )}
+        </div>
+
+        {/* ======================================================== */}
+        {/* EXPLAIN RISK: DETERMINISTIC ATTRIBUTION */}
+        {/* ======================================================== */}
+        <div className={`p-3.5 rounded-xl bg-slate-900/90 border ${riskStyles.border} space-y-3`}>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              Explain Risk
+            </span>
+            <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-cyan-300">
+              Transparent Rules · No ML
+            </span>
+          </div>
+
+          {/* Primary Flood Risk Gauge Display */}
+          <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/90">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 block">
+                  Composite Flood Threat
+                </span>
+                <span className="text-xl font-bold font-mono text-white tracking-tight">
+                  Flood risk:{' '}
+                  <span
+                    className={
+                      riskExplanation.totalRiskScore >= 75
+                        ? 'text-rose-400'
+                        : riskExplanation.totalRiskScore >= 50
+                        ? 'text-amber-400'
+                        : 'text-emerald-400'
+                    }
+                  >
+                    {riskExplanation.totalRiskScore}%
+                  </span>
+                </span>
+              </div>
+              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${riskStyles.badge}`}>
+                {riskExplanation.riskLevel}
+              </span>
+            </div>
+
+            {/* Risk Gauge Bar */}
+            <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden mt-2">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${riskExplanation.totalRiskScore}%`,
+                  backgroundColor:
+                    riskExplanation.totalRiskScore >= 75
+                      ? '#f43f5e'
+                      : riskExplanation.totalRiskScore >= 50
+                      ? '#f59e0b'
+                      : '#10b981',
+                }}
+              />
+            </div>
+
+            <p className="text-[10.5px] text-slate-400 mt-2 italic leading-relaxed">
+              {riskExplanation.summary}
+            </p>
+          </div>
+
+          {/* Contributors Breakdown List */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] text-slate-300 font-semibold px-0.5">
+              <span>Contributors:</span>
+              <span className="text-[10px] text-slate-500 font-mono">Weighted Contribution</span>
+            </div>
+
+            <div className="space-y-1.5">
+              {riskExplanation.contributors.map((c: RiskContributor) => {
+                const badgeStyle =
+                  c.points >= 20
+                    ? 'bg-rose-950/70 border-rose-700/50 text-rose-300'
+                    : c.points >= 12
+                    ? 'bg-amber-950/70 border-amber-700/50 text-amber-300'
+                    : c.points > 0
+                    ? 'bg-cyan-950/70 border-cyan-800/50 text-cyan-300'
+                    : 'bg-slate-900 border-slate-800 text-slate-500';
+
+                return (
+                  <div
+                    key={c.name}
+                    className="p-2 rounded-lg bg-slate-950/70 border border-slate-800/80 hover:border-slate-700/80 transition-colors"
+                  >
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-medium text-slate-200 flex items-center gap-1.5">
+                        <span className="text-slate-500">•</span>
+                        {c.name}
+                      </span>
+                      <span className={`font-mono text-[11px] font-bold px-1.5 py-0.5 rounded border ${badgeStyle}`}>
+                        +{c.points}
+                      </span>
+                    </div>
+
+                    {/* Proportional Contribution Bar */}
+                    <div className="w-full h-1 rounded-full bg-slate-800/80 overflow-hidden mt-1.5">
+                      <div
+                        className="h-full rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.min(100, (c.points / 30) * 100)}%`,
+                          backgroundColor:
+                            c.points >= 20
+                              ? '#f43f5e'
+                              : c.points >= 12
+                              ? '#f59e0b'
+                              : '#06b6d4',
+                        }}
+                      />
+                    </div>
+
+                    <span className="text-[9.5px] text-slate-400 mt-1 block truncate">
+                      {c.description}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="text-[9.5px] text-slate-500 italic pt-1 px-1">
+              Transparent weighted rules: Rainfall excess + Soil saturation + Inflow surcharge + Stage rise + Storage depletion.
+            </div>
+          </div>
         </div>
 
         {/* ======================================================== */}

@@ -1,10 +1,27 @@
 import { RiskLevel, Sensor, Prediction, TimeSeriesPoint, SimulationStep } from './telemetry';
 
+export type { RiskLevel };
+
 export interface TerrainInfo {
   elevationMeters: number;
   averageSlopePercent: number;
   drainageAreaKm2: number;
   soilType: string;
+}
+
+export interface RiskContributor {
+  name: string;
+  category: 'rainfall' | 'soil' | 'inflow' | 'rise_rate' | 'terrain';
+  points: number; // e.g. +24
+  percentageOfTotal: number;
+  description: string;
+}
+
+export interface RiskExplanation {
+  totalRiskScore: number; // 0 - 100%
+  riskLevel: RiskLevel;
+  summary: string;
+  contributors: RiskContributor[];
 }
 
 /**
@@ -38,6 +55,19 @@ export interface ZoneState {
   slope: number; // %
   flowAccumulation: number; // km²
   terrain?: TerrainInfo;
+
+  // Soil conditions & Infiltration mechanics
+  soilType?: string; // e.g. "Alluvial Silt Loam", "Sandy Clay Loam"
+  porosity?: number; // e.g. 0.45 (total pore fraction)
+  infiltrationCapacity?: number; // in mm/h (decaying capacity)
+  currentSoilMoisture?: number; // in % volumetric moisture
+  saturation?: number; // in % pore saturation (0 to 100)
+  remainingStorage?: number; // in mm (available retention storage before ponding)
+  actualInfiltration?: number; // in mm/h (water entering soil matrix this hour)
+  surfaceRunoff?: number; // in mm/h (excess overland flow this hour)
+
+  // Explainable Risk Attribution
+  riskExplanation?: RiskExplanation;
 
   // Time-series progressions
   waterLevelHistory: TimeSeriesPoint[];
@@ -167,6 +197,17 @@ export interface ZoneSimulationState {
   soilSaturation: number;
   riskLevel: RiskLevel;
   dangerThreshold: number;
+
+  // Enriched soil condition & infiltration state
+  soilType?: string;
+  porosity?: number;
+  infiltrationCapacity?: number;
+  currentSoilMoisture?: number;
+  saturation?: number;
+  remainingStorage?: number;
+  actualInfiltration?: number;
+  surfaceRunoff?: number;
+  riskExplanation?: RiskExplanation;
 }
 
 export interface SimulationHourStep {
