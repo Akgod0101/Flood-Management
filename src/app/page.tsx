@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Basin, BasinEvent, SimulationStep } from '@/types/flood';
+import { Basin, BasinEvent, SimulationStep, RainfallScenario } from '@/types/flood';
 import { BasinService } from '@/services/basinService';
 import { simulateFloodPropagation } from '@/engine/propagationEngine';
+import { generateBasinRainfallForecast } from '@/engine/forecastGenerator';
 import { useIoTSensors } from '@/hooks/useIoTSensors';
 import dynamic from 'next/dynamic';
 import { Header } from '@/components/dashboard/Header';
@@ -31,6 +32,9 @@ export default function DashboardPage() {
   const [selectedBasinId, setSelectedBasinId] = useState<string>('');
   const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+
+  // Rainfall forecast scenario: normal | heavy | extreme
+  const [rainfallScenario, setRainfallScenario] = useState<RainfallScenario>('heavy');
 
   // Simulation timeline state (0 to 24 hours)
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -68,11 +72,17 @@ export default function DashboardPage() {
     );
   }, [currentBasin, selectedEventId]);
 
-  // 1. Run deterministic 24-hour propagation simulation
+  // Generate simulated rainfall forecast for all zones based on the selected scenario
+  const basinForecast = useMemo(() => {
+    if (!currentBasin || currentBasin.zones.length === 0) return null;
+    return generateBasinRainfallForecast(currentBasin, rainfallScenario);
+  }, [currentBasin, rainfallScenario]);
+
+  // 1. Run deterministic 24-hour propagation simulation consuming the rainfall forecast
   const simulationResult = useMemo(() => {
     if (!currentBasin || currentBasin.zones.length === 0) return null;
-    return simulateFloodPropagation(currentBasin, currentBasin.zones, 24);
-  }, [currentBasin]);
+    return simulateFloodPropagation(currentBasin, currentBasin.zones, 24, basinForecast);
+  }, [currentBasin, basinForecast]);
 
   // 2. Generate 25 hourly timeline steps (Hour 0 to Hour 24)
   const simulationSteps: SimulationStep[] = useMemo(() => {
@@ -234,6 +244,7 @@ export default function DashboardPage() {
         currentEvent={currentEvent}
         currentTimeLabel={currentStep.label}
         isLiveIoT={isLiveStreaming}
+        rainfallScenario={rainfallScenario}
       />
 
       {/* 2. Main Middle Workspace (Sidebar, Map Canvas, Details Panel) */}
@@ -255,6 +266,8 @@ export default function DashboardPage() {
           simulationSpeed={simulationSpeed}
           onSetSimulationSpeed={setSimulationSpeed}
           currentTimeLabel={currentStep.label}
+          rainfallScenario={rainfallScenario}
+          onSelectRainfallScenario={setRainfallScenario}
         />
 
         {/* Central Map Area with dynamic zone colors, flow propagation & IoT sensor markers */}
@@ -268,12 +281,15 @@ export default function DashboardPage() {
           isLiveStreaming={isLiveStreaming}
         />
 
-        {/* Right Information Panel with simulated zone state */}
+        {/* Right Information Panel with simulated zone state & forecast */}
         <ZoneDetailsPanel
           basin={activeBasin}
           selectedZone={selectedZone}
           onSelectZone={setSelectedZoneId}
           onClearSelection={() => setSelectedZoneId(null)}
+          basinForecast={basinForecast}
+          rainfallScenario={rainfallScenario}
+          onSelectScenario={setRainfallScenario}
         />
       </div>
 

@@ -9,6 +9,7 @@ interface HeaderProps {
   currentEvent: BasinEvent;
   currentTimeLabel: string;
   isLiveIoT?: boolean;
+  rainfallScenario?: 'normal' | 'heavy' | 'extreme';
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentEvent,
   currentTimeLabel,
   isLiveIoT = true,
+  rainfallScenario = 'heavy',
 }) => {
   const criticalCount = currentBasin.zones.filter(
     (z) => z.currentState.predictedFloodRisk === 'critical'
@@ -65,6 +67,26 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
           <span className="text-slate-400">IoT Telemetry:</span>
           <span className="text-emerald-400 font-medium font-mono text-[11px]">LIVE STREAM</span>
+        </div>
+
+        {/* Rainfall Forecast Scenario Indicator */}
+        <div
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs ${
+            rainfallScenario === 'extreme'
+              ? 'bg-rose-950/70 border-rose-600/50 text-rose-300'
+              : rainfallScenario === 'heavy'
+              ? 'bg-amber-950/70 border-amber-600/50 text-amber-300'
+              : 'bg-slate-900/90 border-slate-800 text-slate-300'
+          }`}
+        >
+          <span className="text-slate-400">Rain Forecast:</span>
+          <span className="font-bold font-mono text-[11px] uppercase">
+            {rainfallScenario === 'extreme'
+              ? '⛈ EXTREME DELUGE'
+              : rainfallScenario === 'heavy'
+              ? '🌧 HEAVY MONSOON'
+              : '🌤 NORMAL MONSOON'}
+          </span>
         </div>
 
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-slate-300">

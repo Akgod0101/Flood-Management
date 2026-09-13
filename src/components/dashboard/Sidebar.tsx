@@ -15,6 +15,9 @@ import {
   Network,
   Zap,
   AlertTriangle,
+  CloudRain,
+  CloudLightning,
+  SunMedium,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -33,6 +36,8 @@ interface SidebarProps {
   simulationSpeed: number;
   onSetSimulationSpeed: (speed: number) => void;
   currentTimeLabel: string;
+  rainfallScenario?: 'normal' | 'heavy' | 'extreme';
+  onSelectRainfallScenario?: (scenario: 'normal' | 'heavy' | 'extreme') => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -51,6 +56,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   simulationSpeed,
   onSetSimulationSpeed,
   currentTimeLabel,
+  rainfallScenario = 'heavy',
+  onSelectRainfallScenario,
 }) => {
   const getRiskBadgeColor = (risk: string) => {
     switch (risk) {
@@ -153,6 +160,59 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {selectedEvent.description}
           </p>
         </div>
+
+        {/* 2.5. Rainfall Forecast Scenario Selector */}
+        {onSelectRainfallScenario && (
+          <div className="space-y-2 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+                Rainfall Scenario
+              </label>
+              <span className="text-[10px] font-mono uppercase text-cyan-400">
+                {rainfallScenario}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                onClick={() => onSelectRainfallScenario('normal')}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border flex flex-col items-center justify-center transition-all ${
+                  rainfallScenario === 'normal'
+                    ? 'bg-emerald-950/70 border-emerald-500/60 text-emerald-200'
+                    : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <SunMedium className="w-3 h-3 text-emerald-400 mb-0.5" />
+                <span>Normal</span>
+              </button>
+
+              <button
+                onClick={() => onSelectRainfallScenario('heavy')}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border flex flex-col items-center justify-center transition-all ${
+                  rainfallScenario === 'heavy'
+                    ? 'bg-amber-950/70 border-amber-500/60 text-amber-200'
+                    : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <CloudRain className="w-3 h-3 text-amber-400 mb-0.5" />
+                <span>Heavy</span>
+              </button>
+
+              <button
+                onClick={() => onSelectRainfallScenario('extreme')}
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border flex flex-col items-center justify-center transition-all ${
+                  rainfallScenario === 'extreme'
+                    ? 'bg-rose-950/70 border-rose-500/60 text-rose-200'
+                    : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <CloudLightning className="w-3 h-3 text-rose-400 mb-0.5" />
+                <span>Extreme</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 3. Simulation Controls */}
         <div className="space-y-3 p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">

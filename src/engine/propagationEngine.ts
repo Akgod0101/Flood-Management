@@ -6,6 +6,7 @@ import {
   Zone,
   ZoneSimulationState,
   BasinSimulationResult,
+  BasinRainfallForecast,
 } from '../types/flood';
 
 /**
@@ -98,8 +99,7 @@ export function propagateFlow(
 
 /**
  * 4. calculateRisk
- * Evaluates flood risk category from water level ratio against danger threshold
- * and rate of rise.
+ * Pure, deterministic risk classifier based on water level and danger threshold.
  */
 export function calculateRisk(
   waterLevel: number,
@@ -123,17 +123,20 @@ export function calculateRisk(
 /**
  * 5. simulateFloodPropagation
  * Pure, deterministic TypeScript simulation function.
- * Propagates flood wave forward through the zone graph in hourly steps.
+ * Propagates flood wave forward through the zone graph in hourly steps,
+ * consuming forecasted precipitation across zones and routing discharge downstream.
  *
  * @param basin - River basin containing zones and directed edges
  * @param initialConditions - Starting zone states at T=0
  * @param forecastHours - Duration of forward projection in hours (default 24h)
+ * @param rainfallForecast - Optional zone-by-zone forecasted precipitation scenario
  * @returns Complete hourly state matrix for all zones
  */
 export function simulateFloodPropagation(
   basin: Basin,
   initialConditions: Zone[],
-  forecastHours: number = 24
+  forecastHours: number = 24,
+  rainfallForecast?: BasinRainfallForecast | null
 ): BasinSimulationResult {
   const steps: SimulationHourStep[] = [];
 
@@ -249,24 +252,42 @@ export function simulateFloodPropagation(
     for (const zone of initialConditions) {
       const state = currentStates[zone.id];
 
-      // Simulated rain storm curve (peaks around hour 2-4 in high elevations, then dissipates)
-      const stormDecay = Math.max(0.05, Math.exp(-Math.pow((hour - 2.5) / 4.5, 2)));
-      const simulatedRain = parseFloat((state.rainfall * stormDecay).toFixed(1));
+      // 1. Determine hourly rainfall from forecast if available, else use fallback curve
+      let simulatedRain: number;
+      const zoneForecast = rainfallForecast?.zones[zone.id];
+      if (zoneForecast && zoneForecast.hourlyRainfallMm[hour - 1] !== undefined) {
+        simulatedRain = zoneForecast.hourlyRainfallMm[hour - 1];
+      } else {
+        const stormDecay = Math.max(0.05, Math.exp(-Math.pow((hour - 2.5) / 4.5, 2)));
+        simulatedRain = parseFloat((state.rainfall * stormDecay).toFixed(1));
+      }
 
-      // Soil saturation increases as rain falls, or slowly drains
+      // Soil saturation increases nonlinearly with rainfall volume, or slowly drains
+      const satDelta =
+        simulatedRain > 25
+          ? 3.8
+          : simulatedRain > 12
+          ? 2.2
+          : simulatedRain > 4
+          ? 0.9
+          : -0.6;
       const newSoilSat = Math.min(
         99,
-        Math.max(45, Math.round(state.soilSaturation + (simulatedRain > 10 ? 1.5 : -0.8)))
+        Math.max(42, Math.round(state.soilSaturation + satDelta))
       );
       state.soilSaturation = newSoilSat;
 
       // Inflow from scheduled transit arrivals at this hour
       const scheduledInflow = Math.round(transitSchedule[zone.id]?.[hour] || 0);
 
-      // Base inflow for headwaters without upstream edges
+      // Base inflow for headwaters without upstream edges + local tributary precipitation yield
       const isHeadwater = (zone.upstreamZoneIds || []).length === 0;
-      const baseHeadwaterInflow = isHeadwater ? Math.round(simulatedRain * state.areaKm2 * 0.12) : 0;
-      const totalIncomingFlow = scheduledInflow + baseHeadwaterInflow;
+      const headwaterRunoffScale = isHeadwater ? 0.22 : 0.04;
+      const saturationMultiplier = Math.max(0.6, newSoilSat / 65);
+      const localCatchmentInflow = Math.round(
+        simulatedRain * state.areaKm2 * headwaterRunoffScale * saturationMultiplier
+      );
+      const totalIncomingFlow = scheduledInflow + localCatchmentInflow;
       state.incomingFlow = totalIncomingFlow;
 
       // 2. Update Zone Water Level

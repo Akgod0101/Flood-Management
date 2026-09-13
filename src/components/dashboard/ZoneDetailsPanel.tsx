@@ -1,7 +1,14 @@
 'use client';
 
-import React from 'react';
-import { Basin, Zone, TimeSeriesPoint } from '@/types/flood';
+import React, { useState } from 'react';
+import {
+  Basin,
+  Zone,
+  TimeSeriesPoint,
+  BasinRainfallForecast,
+  RainfallScenario,
+} from '@/types/flood';
+import { ForecastPanel } from './ForecastPanel';
 import {
   Activity,
   ArrowUpRight,
@@ -27,6 +34,9 @@ interface ZoneDetailsPanelProps {
   selectedZone: Zone | null;
   onSelectZone: (zoneId: string) => void;
   onClearSelection: () => void;
+  basinForecast?: BasinRainfallForecast | null;
+  rainfallScenario?: RainfallScenario;
+  onSelectScenario?: (scenario: RainfallScenario) => void;
 }
 
 export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
@@ -34,7 +44,11 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
   selectedZone,
   onSelectZone,
   onClearSelection,
+  basinForecast,
+  rainfallScenario = 'heavy',
+  onSelectScenario,
 }) => {
+  const [activeTab, setActiveTab] = useState<'details' | 'forecast'>('details');
   const getRiskStyles = (risk: string) => {
     switch (risk) {
       case 'critical':
@@ -288,64 +302,102 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
           </span>
         </div>
 
+        {/* Tab switcher: Overview vs Rainfall Forecast */}
+        <div className="flex border-b border-slate-800/80 bg-slate-900/50 sticky top-0 z-10">
+          <button
+            onClick={() => setActiveTab('details')}
+            className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border-b-2 ${
+              activeTab === 'details'
+                ? 'border-cyan-400 text-cyan-300 bg-slate-900/80'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Basin Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('forecast')}
+            className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border-b-2 ${
+              activeTab === 'forecast'
+                ? 'border-cyan-400 text-cyan-300 bg-slate-900/80'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+            Rainfall Forecast
+          </button>
+        </div>
+
         <div className="p-4 space-y-5 flex-1">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400 text-[11px] block">Total Zones</span>
-              <span className="text-lg font-bold text-white mt-0.5 block">{basin.zones.length} Zones</span>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400 text-[11px] block">Catchment Area</span>
-              <span className="text-lg font-bold text-cyan-400 mt-0.5 block">{basin.totalAreaKm2} km²</span>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400 text-[11px] block">Flow Channels</span>
-              <span className="text-lg font-bold text-indigo-400 mt-0.5 block">{basin.edges.length} Edges</span>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-              <span className="text-slate-400 text-[11px] block">Critical Corridors</span>
-              <span className="text-lg font-bold text-rose-400 mt-0.5 block">{criticalZones.length} Zones</span>
-            </div>
-          </div>
+          {activeTab === 'forecast' && basinForecast ? (
+            <ForecastPanel
+              scenario={rainfallScenario}
+              onSelectScenario={onSelectScenario || (() => {})}
+              basinForecast={basinForecast}
+              selectedZone={null}
+              onSelectZone={onSelectZone}
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 text-[11px] block">Total Zones</span>
+                  <span className="text-lg font-bold text-white mt-0.5 block">{basin.zones.length} Zones</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 text-[11px] block">Catchment Area</span>
+                  <span className="text-lg font-bold text-cyan-400 mt-0.5 block">{basin.totalAreaKm2} km²</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 text-[11px] block">Flow Channels</span>
+                  <span className="text-lg font-bold text-indigo-400 mt-0.5 block">{basin.edges.length} Edges</span>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 text-[11px] block">Critical Corridors</span>
+                  <span className="text-lg font-bold text-rose-400 mt-0.5 block">{criticalZones.length} Zones</span>
+                </div>
+              </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">
-                Risk Tier Distribution
-              </span>
-              <span className="text-rose-400 text-[11px] font-mono">{criticalZones.length} Critical</span>
-            </div>
+              <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-300 uppercase tracking-wider text-[11px]">
+                    Risk Tier Distribution
+                  </span>
+                  <span className="text-rose-400 text-[11px] font-mono">{criticalZones.length} Critical</span>
+                </div>
 
-            <div className="space-y-1.5 pt-1">
-              {basin.zones.map((zone) => {
-                const styles = getRiskStyles(zone.riskLevel);
-                return (
-                  <button
-                    key={zone.id}
-                    onClick={() => onSelectZone(zone.id)}
-                    className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-950/60 hover:bg-slate-800 border border-slate-800/80 text-xs transition-colors"
-                  >
-                    <div className="text-left">
-                      <span className="text-slate-200 font-medium block">{zone.name}</span>
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        {zone.elevationMeters}m elev. · {zone.currentWaterLevelMeters.toFixed(2)}m stage
-                      </span>
-                    </div>
-                    <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded border ${styles.badge}`}>
-                      {zone.riskLevel}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                <div className="space-y-1.5 pt-1">
+                  {basin.zones.map((zone) => {
+                    const styles = getRiskStyles(zone.riskLevel);
+                    return (
+                      <button
+                        key={zone.id}
+                        onClick={() => onSelectZone(zone.id)}
+                        className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-950/60 hover:bg-slate-800 border border-slate-800/80 text-xs transition-colors"
+                      >
+                        <div className="text-left">
+                          <span className="text-slate-200 font-medium block">{zone.name}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {zone.elevationMeters}m elev. · {zone.currentWaterLevelMeters.toFixed(2)}m stage
+                          </span>
+                        </div>
+                        <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded border ${styles.badge}`}>
+                          {zone.riskLevel}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/20 text-xs text-cyan-300 flex items-start gap-2">
-            <HelpCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-            <p>
-              Click any zone polygon on the map or select from the list to open its local live digital twin state.
-            </p>
-          </div>
+              <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/20 text-xs text-cyan-300 flex items-start gap-2">
+                <HelpCircle className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                <p>
+                  Click any zone polygon on the map or select from the list to open its local live digital twin state.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </aside>
     );
@@ -393,10 +445,47 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
         </button>
       </div>
 
+      {/* Tab switcher: Digital State vs Rainfall Forecast */}
+      <div className="flex border-b border-slate-800/80 bg-slate-900/50 sticky top-[73px] z-10">
+        <button
+          onClick={() => setActiveTab('details')}
+          className={`flex-1 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border-b-2 ${
+            activeTab === 'details'
+              ? 'border-cyan-400 text-cyan-300 bg-slate-900/80'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Activity className="w-3.5 h-3.5" />
+          Digital State
+        </button>
+        <button
+          onClick={() => setActiveTab('forecast')}
+          className={`flex-1 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border-b-2 ${
+            activeTab === 'forecast'
+              ? 'border-cyan-400 text-cyan-300 bg-slate-900/80'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+          Zone Forecast
+        </button>
+      </div>
+
       <div className="p-4 space-y-5 flex-1 text-xs">
-        {/* ======================================================== */}
-        {/* SECTION 1: CURRENT CONDITION */}
-        {/* ======================================================== */}
+        {activeTab === 'forecast' && basinForecast ? (
+          <ForecastPanel
+            scenario={rainfallScenario}
+            onSelectScenario={onSelectScenario || (() => {})}
+            basinForecast={basinForecast}
+            selectedZone={selectedZone}
+            onClearZoneSelection={onClearSelection}
+            onSelectZone={onSelectZone}
+          />
+        ) : (
+          <>
+            {/* ======================================================== */}
+            {/* SECTION 1: CURRENT CONDITION */}
+            {/* ======================================================== */}
         <div className={`p-3.5 rounded-xl bg-slate-900/80 border ${riskStyles.border} space-y-2.5`}>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -499,6 +588,20 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
 
           {/* Small SVG Bar Chart: Rainfall Over Time */}
           {renderRainfallChart(state.rainfallHistory, state.rainfallCurrent)}
+
+          {/* Quick link to Forecast Horizons */}
+          <button
+            onClick={() => setActiveTab('forecast')}
+            className="w-full flex items-center justify-between p-2 rounded-lg bg-cyan-950/40 hover:bg-cyan-950/70 border border-cyan-800/40 text-cyan-300 text-[11px] transition-colors group mt-2"
+          >
+            <div className="flex items-center gap-1.5">
+              <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Simulated Forecast (1h / 3h / 6h / 24h)</span>
+            </div>
+            <span className="text-[10px] text-cyan-400 font-mono group-hover:translate-x-0.5 transition-transform">
+              Open Forecast →
+            </span>
+          </button>
         </div>
 
         {/* ======================================================== */}
@@ -771,7 +874,9 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
             )}
           </div>
         </div>
-      </div>
-    </aside>
+      </>
+    )}
+  </div>
+</aside>
   );
 };
