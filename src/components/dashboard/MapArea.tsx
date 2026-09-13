@@ -716,6 +716,19 @@ export const MapArea: React.FC<MapAreaProps> = ({
               </span>
             </div>
           </div>
+
+          {hoveredZone.currentState?.aiPrediction && (
+            <div className="pt-1.5 border-t border-purple-500/20 flex items-center justify-between text-[10px] bg-purple-950/20 px-1.5 py-1 rounded">
+              <span className="text-purple-300 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                AI Pred P(3h): {(hoveredZone.currentState.aiPrediction.probabilities.flood_probability_3h * 100).toFixed(0)}%
+              </span>
+              <span className="text-slate-400 font-mono">
+                Conf: {(hoveredZone.currentState.aiPrediction.confidence * 100).toFixed(0)}%
+              </span>
+            </div>
+          )}
+
           <span className="text-[10px] text-cyan-400/80 block pt-0.5 italic">
             Click zone to lock selection & inspect twin
           </span>

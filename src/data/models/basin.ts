@@ -24,6 +24,23 @@ export interface RiskExplanation {
   contributors: RiskContributor[];
 }
 
+export interface AIPredictionProbabilities {
+  flood_probability_1h: number; // 0.0 to 1.0
+  flood_probability_3h: number; // 0.0 to 1.0
+  flood_probability_6h: number; // 0.0 to 1.0
+}
+
+export interface AIPrediction {
+  zone_id: string;
+  probabilities: AIPredictionProbabilities;
+  confidence: number;
+  risk_tier: RiskLevel;
+  algorithm: string;
+  isAvailable: boolean; // true = live API, false = offline fallback
+  notice?: string;
+  timestamp: string;
+}
+
 /**
  * Hydrological Zone State
  * Represents the local digital state of a catchment zone at a specific point in time.
@@ -68,6 +85,9 @@ export interface ZoneState {
 
   // Explainable Risk Attribution
   riskExplanation?: RiskExplanation;
+
+  // AI Multi-Horizon Prediction (from FastAPI backend)
+  aiPrediction?: AIPrediction;
 
   // Time-series progressions
   waterLevelHistory: TimeSeriesPoint[];
@@ -129,6 +149,7 @@ export interface Zone {
   currentState: ZoneState;
   sensors: Sensor[];
   latestPrediction?: Prediction;
+  aiPrediction?: AIPrediction;
 
   // Provenance & Scaffold Flag
   isSynthetic?: boolean;

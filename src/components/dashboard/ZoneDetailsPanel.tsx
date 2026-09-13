@@ -8,6 +8,7 @@ import {
   BasinRainfallForecast,
   RainfallScenario,
   RiskContributor,
+  AIPrediction,
 } from '@/types/flood';
 import { ForecastPanel } from './ForecastPanel';
 import {
@@ -35,6 +36,8 @@ import {
   ShieldAlert,
   Compass,
   Droplets,
+  Sparkles,
+  Cpu,
 } from 'lucide-react';
 
 interface ZoneDetailsPanelProps {
@@ -450,6 +453,9 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
     remainingStorageMm: remainingStorage,
   });
 
+  // AI Multi-Horizon Prediction state
+  const aiPrediction = state.aiPrediction || selectedZone.aiPrediction;
+
   return (
     <aside className="w-96 h-full border-l border-slate-800/80 bg-slate-950/95 flex flex-col z-20 shrink-0 select-none overflow-y-auto">
       {/* Top sticky Zone Header */}
@@ -524,10 +530,16 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
             {/* ======================================================== */}
         <div className={`p-3.5 rounded-xl bg-slate-900/80 border ${riskStyles.border} space-y-2.5`}>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-cyan-400" />
-              1. Current Condition
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-cyan-400" />
+                1. Current Condition
+              </span>
+              <span className="text-[8.5px] font-mono uppercase px-1.5 py-0.5 rounded bg-sky-950/80 border border-sky-600/50 text-sky-300 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block animate-pulse" />
+                OBSERVED
+              </span>
+            </div>
             <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${riskStyles.badge}`}>
               {selectedZone.riskLevel}
             </span>
@@ -645,10 +657,16 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
         {/* ======================================================== */}
         <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
-              3. Soil Conditions & Infiltration
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                3. Soil Conditions & Infiltration
+              </span>
+              <span className="text-[8.5px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-950/80 border border-indigo-600/50 text-indigo-300 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
+                SIMULATED
+              </span>
+            </div>
             <span
               className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded border ${
                 soilSaturation >= 90
@@ -801,10 +819,16 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
         {/* ======================================================== */}
         <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Waves className="w-3.5 h-3.5 text-cyan-400" />
-              4. Water & Flow Balance
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Waves className="w-3.5 h-3.5 text-indigo-400" />
+                4. Water & Flow Balance
+              </span>
+              <span className="text-[8.5px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-950/80 border border-indigo-600/50 text-indigo-300 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
+                SIMULATED
+              </span>
+            </div>
             <span className="font-mono text-cyan-300 font-bold">
               {state.currentWaterLevel.toFixed(2)}m Stage
             </span>
@@ -881,44 +905,167 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
         </div>
 
         {/* ======================================================== */}
-        {/* SECTION 6: PREDICTION */}
+        {/* SECTION 6: AI MULTI-HORIZON PREDICTION */}
         {/* ======================================================== */}
-        <div className={`p-3.5 rounded-xl bg-slate-900/80 border ${riskStyles.border} space-y-2.5`}>
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
-              6. Flood Risk Prediction
-            </span>
-            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${riskStyles.badge}`}>
-              {state.floodRisk}
-            </span>
+        <div className={`p-3.5 rounded-xl bg-slate-900/90 border ${riskStyles.border} space-y-3`}>
+          {/* Header with small AI Prediction badge and Live status */}
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
+                6. AI Risk Prediction
+              </span>
+              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-900/90 to-cyan-950/90 border border-violet-500/60 text-violet-200 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                <Sparkles className="w-2.5 h-2.5 text-cyan-300 animate-spin" style={{ animationDuration: '6s' }} />
+                AI Prediction
+              </span>
+            </div>
+            {aiPrediction?.isAvailable ? (
+              <span className="text-[8.5px] font-mono text-emerald-300 flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-800/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
+                Live {aiPrediction.algorithm}
+              </span>
+            ) : (
+              <span className="text-[8.5px] font-mono text-amber-300 flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-950/70 border border-amber-800/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                Deterministic Fallback
+              </span>
+            )}
           </div>
 
+          {/* Multi-Horizon Probability Cards (1h, 3h, 6h) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] text-slate-400 font-semibold px-0.5">
+              <span className="uppercase tracking-wider">Multi-Horizon Flood Threat</span>
+              <span className="font-mono text-slate-500">P(Inundation)</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5 text-center">
+              {/* 1 Hour Horizon */}
+              <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-[9.5px] text-slate-400 block font-medium">T+1h Flash</span>
+                <span
+                  className={`font-mono text-base font-bold block ${
+                    (aiPrediction?.probabilities.flood_probability_1h ?? 0) >= 0.70
+                      ? 'text-rose-400'
+                      : (aiPrediction?.probabilities.flood_probability_1h ?? 0) >= 0.40
+                      ? 'text-amber-400'
+                      : 'text-emerald-400'
+                  }`}
+                >
+                  {aiPrediction
+                    ? `${(aiPrediction.probabilities.flood_probability_1h * 100).toFixed(1)}%`
+                    : '--'}
+                </span>
+                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(aiPrediction?.probabilities.flood_probability_1h ?? 0) * 100}%`,
+                      backgroundColor:
+                        (aiPrediction?.probabilities.flood_probability_1h ?? 0) >= 0.70
+                          ? '#f43f5e'
+                          : (aiPrediction?.probabilities.flood_probability_1h ?? 0) >= 0.40
+                          ? '#f59e0b'
+                          : '#10b981',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* 3 Hour Horizon */}
+              <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-[9.5px] text-slate-400 block font-medium">T+3h Inflow</span>
+                <span
+                  className={`font-mono text-base font-bold block ${
+                    (aiPrediction?.probabilities.flood_probability_3h ?? 0) >= 0.70
+                      ? 'text-rose-400'
+                      : (aiPrediction?.probabilities.flood_probability_3h ?? 0) >= 0.40
+                      ? 'text-amber-400'
+                      : 'text-emerald-400'
+                  }`}
+                >
+                  {aiPrediction
+                    ? `${(aiPrediction.probabilities.flood_probability_3h * 100).toFixed(1)}%`
+                    : '--'}
+                </span>
+                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(aiPrediction?.probabilities.flood_probability_3h ?? 0) * 100}%`,
+                      backgroundColor:
+                        (aiPrediction?.probabilities.flood_probability_3h ?? 0) >= 0.70
+                          ? '#f43f5e'
+                          : (aiPrediction?.probabilities.flood_probability_3h ?? 0) >= 0.40
+                          ? '#f59e0b'
+                          : '#10b981',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* 6 Hour Horizon */}
+              <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
+                <span className="text-[9.5px] text-slate-400 block font-medium">T+6h Basin</span>
+                <span
+                  className={`font-mono text-base font-bold block ${
+                    (aiPrediction?.probabilities.flood_probability_6h ?? 0) >= 0.70
+                      ? 'text-rose-400'
+                      : (aiPrediction?.probabilities.flood_probability_6h ?? 0) >= 0.40
+                      ? 'text-amber-400'
+                      : 'text-emerald-400'
+                  }`}
+                >
+                  {aiPrediction
+                    ? `${(aiPrediction.probabilities.flood_probability_6h * 100).toFixed(1)}%`
+                    : '--'}
+                </span>
+                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(aiPrediction?.probabilities.flood_probability_6h ?? 0) * 100}%`,
+                      backgroundColor:
+                        (aiPrediction?.probabilities.flood_probability_6h ?? 0) >= 0.70
+                          ? '#f43f5e'
+                          : (aiPrediction?.probabilities.flood_probability_6h ?? 0) >= 0.40
+                          ? '#f59e0b'
+                          : '#10b981',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Model Confidence & Danger Timepoint */}
           <div className="flex items-center justify-between text-xs pt-0.5">
-            <span className="text-slate-400">Confidence Rating:</span>
+            <span className="text-slate-400">Model Confidence:</span>
             <div className="flex items-center gap-2">
-              <div className="w-24 h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-20 h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div
-                  className="h-full bg-cyan-400 rounded-full"
-                  style={{ width: `${state.confidence * 100}%` }}
+                  className="h-full bg-violet-400 rounded-full transition-all duration-300"
+                  style={{ width: `${((aiPrediction?.confidence ?? state.confidence) * 100).toFixed(0)}%` }}
                 />
               </div>
-              <span className="font-mono text-cyan-300 text-[11px]">
-                {(state.confidence * 100).toFixed(0)}%
+              <span className="font-mono text-violet-300 text-[11px]">
+                {((aiPrediction?.confidence ?? state.confidence) * 100).toFixed(0)}%
               </span>
             </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 space-y-1">
-            <span className="text-slate-400 text-[10px] block">Predicted Danger Timepoint:</span>
-            <span className={`font-mono text-xs font-bold block ${state.floodRisk === 'critical' ? 'text-rose-400' : 'text-slate-200'}`}>
+          <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between text-[11px]">
+            <span className="text-slate-400 text-[10px]">Predicted Danger Timepoint:</span>
+            <span className={`font-mono text-xs font-bold ${state.floodRisk === 'critical' ? 'text-rose-400' : 'text-slate-200'}`}>
               {state.predictedDangerTime}
             </span>
           </div>
 
+          {/* Key Drivers from AI Prediction */}
           {selectedZone.latestPrediction?.keyDrivers && (
-            <div className="space-y-1 text-[11px]">
-              <span className="text-slate-500 font-semibold block text-[10px]">Key Risk Drivers:</span>
+            <div className="space-y-1 text-[10.5px]">
+              <span className="text-slate-400 font-semibold block text-[10px]">AI Prediction Drivers:</span>
               <ul className="space-y-1 text-slate-300">
                 {selectedZone.latestPrediction.keyDrivers.map((driver, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
@@ -929,6 +1076,24 @@ export const ZoneDetailsPanel: React.FC<ZoneDetailsPanelProps> = ({
               </ul>
             </div>
           )}
+
+          {/* 3-Layer Architecture Distinction Legend */}
+          <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800/80 text-[9.5px] space-y-1">
+            <span className="text-slate-400 uppercase tracking-wider font-semibold block text-[9px]">
+              Active Multi-Layer Intelligence Architecture:
+            </span>
+            <div className="grid grid-cols-3 gap-1 pt-0.5 text-center font-mono">
+              <div className="p-1 rounded bg-sky-950/40 border border-sky-800/40 text-sky-300">
+                ● Observed (Sensors)
+              </div>
+              <div className="p-1 rounded bg-indigo-950/40 border border-indigo-800/40 text-indigo-300">
+                ≈ Simulated (Physics)
+              </div>
+              <div className="p-1 rounded bg-violet-950/40 border border-violet-800/40 text-violet-300">
+                ✨ AI (XGBoost ML)
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ======================================================== */}

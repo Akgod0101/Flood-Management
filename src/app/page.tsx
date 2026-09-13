@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Basin, BasinEvent, SimulationStep, RainfallScenario } from '@/types/flood';
+import { Basin, BasinEvent, SimulationStep, RainfallScenario, AIPrediction, RiskLevel } from '@/types/flood';
 import { BasinService } from '@/services/basinService';
 import { simulateFloodPropagation } from '@/engine/propagationEngine';
 import { generateBasinRainfallForecast } from '@/engine/forecastGenerator';
+import { predictAllZones } from '@/services/mlPredictionService';
 import { useIoTSensors } from '@/hooks/useIoTSensors';
 import dynamic from 'next/dynamic';
 import { Header } from '@/components/dashboard/Header';
@@ -40,6 +41,9 @@ export default function DashboardPage() {
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [simulationSpeed, setSimulationSpeed] = useState<number>(1);
+
+  // AI Prediction state (map of zoneId -> AIPrediction)
+  const [aiPredictions, setAiPredictions] = useState<Record<string, AIPrediction>>({});
 
   // Load initial data through BasinService abstraction
   useEffect(() => {
@@ -108,6 +112,9 @@ export default function DashboardPage() {
       const sim = hourStep.zoneStates[zone.id];
       if (!sim) return zone;
 
+      const aiPred = aiPredictions[zone.id];
+      const effectiveRisk: RiskLevel = aiPred?.risk_tier || sim.riskLevel;
+
       // Update the 12-hour history chart to reflect simulated water progression up to this hour
       const history = (zone.currentState.waterLevelHistory || []).map((pt, idx, arr) => {
         if (idx === arr.length - 1) {
@@ -118,8 +125,24 @@ export default function DashboardPage() {
 
       return {
         ...zone,
-        riskLevel: sim.riskLevel,
+        riskLevel: effectiveRisk,
         currentWaterLevelMeters: sim.waterLevel,
+        aiPrediction: aiPred,
+        latestPrediction: aiPred
+          ? {
+              horizonHours: 3,
+              riskLevel: effectiveRisk,
+              peakWaterLevelMeters: sim.waterLevel * (1 + (aiPred.probabilities.flood_probability_3h || 0) * 0.2),
+              estimatedTimeToPeakHours: 3,
+              confidence: aiPred.confidence,
+              keyDrivers: [
+                `AI P(1h) = ${(aiPred.probabilities.flood_probability_1h * 100).toFixed(1)}%`,
+                `AI P(3h) = ${(aiPred.probabilities.flood_probability_3h * 100).toFixed(1)}%`,
+                `AI P(6h) = ${(aiPred.probabilities.flood_probability_6h * 100).toFixed(1)}%`,
+                aiPred.isAvailable ? 'Live XGBoost Multi-Horizon Model' : 'Deterministic Physical Fallback',
+              ],
+            }
+          : zone.latestPrediction,
         currentState: {
           ...zone.currentState,
           waterLevel: sim.waterLevel,
@@ -140,7 +163,10 @@ export default function DashboardPage() {
           actualInfiltration: sim.actualInfiltration ?? zone.currentState.actualInfiltration,
           surfaceRunoff: sim.surfaceRunoff ?? zone.currentState.surfaceRunoff,
           riskExplanation: sim.riskExplanation ?? zone.currentState.riskExplanation,
-          floodRisk: sim.riskLevel,
+          aiPrediction: aiPred,
+          confidence: aiPred?.confidence ?? zone.currentState.confidence ?? 0.85,
+          predictionConfidence: aiPred?.confidence ?? zone.currentState.predictionConfidence ?? 0.85,
+          floodRisk: effectiveRisk,
           waterLevelHistory: history,
         },
       };
@@ -159,7 +185,52 @@ export default function DashboardPage() {
       zones: updatedZones,
       edges: updatedEdges,
     };
-  }, [currentBasin, simulationResult, currentStepIndex]);
+  }, [currentBasin, simulationResult, currentStepIndex, aiPredictions]);
+
+  // 3b. Asynchronous AI Prediction Cycle (FastAPI XGBoost backend)
+  useEffect(() => {
+    if (!currentBasin || currentBasin.zones.length === 0) return;
+
+    let isCancelled = false;
+
+    async function executePredictionCycle() {
+      try {
+        const hourStep = simulationResult?.hourlySteps[currentStepIndex] || simulationResult?.hourlySteps[0];
+        const zonesForInference = currentBasin.zones.map((zone) => {
+          const sim = hourStep?.zoneStates[zone.id];
+          if (!sim) return zone;
+          return {
+            ...zone,
+            currentWaterLevelMeters: sim.waterLevel,
+            currentState: {
+              ...zone.currentState,
+              waterLevel: sim.waterLevel,
+              currentWaterLevel: sim.waterLevel,
+              waterLevelRiseRate: sim.waterLevelRiseRate,
+              incomingFlow: sim.incomingFlow,
+              rainfall: sim.rainfall,
+              rainfallCurrent: sim.rainfall,
+              soilSaturation: sim.soilSaturation,
+              remainingStorage: sim.remainingStorage ?? zone.currentState.remainingStorage,
+            },
+          };
+        });
+
+        const predictions = await predictAllZones(zonesForInference, basinForecast);
+        if (!isCancelled) {
+          setAiPredictions(predictions);
+        }
+      } catch (err) {
+        console.warn('[AI Prediction Cycle] Non-fatal error during cycle:', err);
+      }
+    }
+
+    executePredictionCycle();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentBasin?.id, currentStepIndex, rainfallScenario, basinForecast, simulationResult]);
 
   // Current active zone object (derived from activeBasin)
   const selectedZone = useMemo(() => {
