@@ -2,6 +2,7 @@
 
 import {
   LayoutDashboard,
+  Flame,
   Network,
   MapPin,
   Satellite,
@@ -27,6 +28,7 @@ interface Props {
 
 const navItems: Array<{ id: PageId; label: string; icon: typeof LayoutDashboard }> = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'heatmap', label: 'Regional Heatmap', icon: Flame },
   { id: 'basin-graph', label: 'Basin Graph', icon: Network },
   { id: 'zone-details', label: 'Zone Details', icon: MapPin },
   { id: 'satellite', label: 'Satellite', icon: Satellite },
@@ -34,6 +36,7 @@ const navItems: Array<{ id: PageId; label: string; icon: typeof LayoutDashboard 
   { id: 'alerts', label: 'Alerts', icon: Bell },
   { id: 'data-sources', label: 'Data Sources', icon: Database },
 ];
+
 
 export function Sidebar({ activePage, onPageChange, isRunning, onStart, onStop, onReset, onStep }: Props) {
   return (

@@ -200,4 +200,13 @@ export interface Alert {
   acknowledged: boolean;
 }
 
-export type PageId = 'overview' | 'basin-graph' | 'zone-details' | 'satellite' | 'historical' | 'alerts' | 'data-sources';
+export type PageId =
+  | 'overview'
+  | 'heatmap'
+  | 'basin-graph'
+  | 'zone-details'
+  | 'satellite'
+  | 'historical'
+  | 'alerts'
+  | 'data-sources';
+

@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { TimeBar } from '@/components/TimeBar';
 import { Overview } from '@/components/pages/Overview';
+import { RegionalHeatmap } from '@/components/pages/RegionalHeatmap';
 import { BasinGraph } from '@/components/pages/BasinGraph';
 import { ZoneDetails } from '@/components/pages/ZoneDetails';
 import { Satellite } from '@/components/pages/Satellite';
@@ -14,6 +15,7 @@ import { DataSources } from '@/components/pages/DataSources';
 import { useSimulation } from '@/hooks/useSimulation';
 import { checkMLHealth } from '@/services/mlPredictionService';
 import type { PageId } from '@/types';
+
 
 export default function Home() {
   const [activePage, setActivePage] = useState<PageId>('overview');
@@ -75,6 +77,9 @@ export default function Home() {
         <main className="flex-1 min-h-0 h-full overflow-hidden bg-slate-950">
           {activePage === 'overview' && (
             <Overview state={state} selectedZoneId={selectedZoneId} onSelectZone={handleSelectZone} />
+          )}
+          {activePage === 'heatmap' && (
+            <RegionalHeatmap state={state} selectedZoneId={selectedZoneId} onSelectZone={handleSelectZone} />
           )}
           {activePage === 'basin-graph' && (
             <BasinGraph state={state} selectedZoneId={selectedZoneId} onSelectZone={handleSelectZone} />

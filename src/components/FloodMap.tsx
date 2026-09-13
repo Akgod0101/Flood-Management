@@ -134,7 +134,7 @@ export function FloodMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
   const baseTileRef = useRef<L.LayerGroup | null>(null);
-  const [basemap, setBasemap] = useState<'heatmap' | 'dark' | 'satellite'>('heatmap');
+  const [basemap, setBasemap] = useState<'heatmap' | 'shaded' | 'dark' | 'satellite'>('heatmap');
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -186,6 +186,24 @@ export function FloodMap({
           maxZoom: 18,
         },
       ).addTo(baseGroup);
+    } else if (basemap === 'shaded') {
+      // Esri World Shaded Relief Terrain (matches reference image with hillshading)
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS',
+          maxZoom: 13,
+        },
+      ).addTo(baseGroup);
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        {
+          attribution: '',
+          maxZoom: 18,
+          opacity: 0.85,
+        },
+      ).addTo(baseGroup);
     } else {
       // Esri World Dark Gray Base (clean dark canvas, no watermarks, no API keys needed)
       L.tileLayer(
@@ -214,10 +232,11 @@ export function FloodMap({
 
     layer.clearLayers();
 
-    // 0. Draw Thermal Flood Risk Heatmap across the basin when in heatmap mode
-    if (basemap === 'heatmap') {
+    // 0. Draw Thermal Flood Risk Heatmap across the basin when in heatmap or shaded mode
+    if (basemap === 'heatmap' || basemap === 'shaded') {
       drawRiskHeatmap(layer, zones, edges);
     }
+
 
     // 1. Draw dynamic SAR inundation polygons & water body masks when Satellite Layer is active
     if (showSatelliteLayer && Object.keys(satelliteObservations).length > 0) {
@@ -524,6 +543,18 @@ export function FloodMap({
           <span>Risk Heatmap</span>
         </button>
         <button
+          onClick={() => setBasemap('shaded')}
+          className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            basemap === 'shaded'
+              ? 'bg-amber-600 text-white shadow-md shadow-amber-600/30'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+          }`}
+          title="Switch to Shaded Relief Terrain with Risk Overlay"
+        >
+          <span>🏔️</span>
+          <span>Shaded Relief</span>
+        </button>
+        <button
           onClick={() => setBasemap('dark')}
           className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
             basemap === 'dark'
@@ -548,6 +579,7 @@ export function FloodMap({
           <span>Satellite Photo</span>
         </button>
       </div>
+
     </div>
   );
 }
