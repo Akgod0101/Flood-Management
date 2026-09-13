@@ -1,0 +1,8 @@
+backend/
+/data/
+!src/data/
+!src/data/**
+Flood-Management/
+project/
+*.csv
+*.joblib
