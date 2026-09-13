@@ -1,0 +1,142 @@
+{
+  "metadata": {
+    "source": "ESA WorldCover 10m v200 / AWS S3 Open Data (s3://esa-worldcover)",
+    "spatial_resolution": "10 meters",
+    "bounds": {
+      "min_lat": 26.0,
+      "max_lat": 27.5,
+      "min_lon": 91.0,
+      "max_lon": 93.5
+    },
+    "total_real_tiles_found": 8,
+    "real_tiles": [
+      {
+        "tile_id": "ESA_WorldCover_10m_2021_v200_N27E093",
+        "bbox": [
+          93.0,
+          27.0,
+          96.0,
+          30.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v200/2021/map/ESA_WorldCover_10m_2021_v200_N27E093_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2021_v200_N27E090",
+        "bbox": [
+          90.0,
+          27.0,
+          93.0,
+          30.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v200/2021/map/ESA_WorldCover_10m_2021_v200_N27E090_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2021_v200_N24E093",
+        "bbox": [
+          93.0,
+          24.0,
+          96.0,
+          27.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v200/2021/map/ESA_WorldCover_10m_2021_v200_N24E093_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2021_v200_N24E090",
+        "bbox": [
+          90.0,
+          24.0,
+          93.0,
+          27.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v200/2021/map/ESA_WorldCover_10m_2021_v200_N24E090_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2020_v100_N27E093",
+        "bbox": [
+          93.0,
+          27.0,
+          96.0,
+          30.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v100/2020/map/ESA_WorldCover_10m_2020_v100_N27E093_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2020_v100_N27E090",
+        "bbox": [
+          90.0,
+          27.0,
+          93.0,
+          30.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v100/2020/map/ESA_WorldCover_10m_2020_v100_N27E090_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2020_v100_N24E093",
+        "bbox": [
+          93.0,
+          24.0,
+          96.0,
+          27.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v100/2020/map/ESA_WorldCover_10m_2020_v100_N24E093_Map.tif",
+        "is_real_live_data": true
+      },
+      {
+        "tile_id": "ESA_WorldCover_10m_2020_v100_N24E090",
+        "bbox": [
+          90.0,
+          24.0,
+          93.0,
+          27.0
+        ],
+        "stac_provider": "Microsoft Planetary Computer",
+        "s3_href": "https://ai4edataeuwest.blob.core.windows.net/esa-worldcover/v100/2020/map/ESA_WorldCover_10m_2020_v100_N24E090_Map.tif",
+        "is_real_live_data": true
+      }
+    ],
+    "is_real_live_data": true
+  },
+  "land_cover_classes": {
+    "10": {
+      "name": "Tree cover / Forest",
+      "manning_roughness_n": 0.1
+    },
+    "20": {
+      "name": "Shrubland",
+      "manning_roughness_n": 0.07
+    },
+    "30": {
+      "name": "Grassland",
+      "manning_roughness_n": 0.04
+    },
+    "40": {
+      "name": "Cropland / Agriculture",
+      "manning_roughness_n": 0.035
+    },
+    "50": {
+      "name": "Built-up / Urban Settlement",
+      "manning_roughness_n": 0.015
+    },
+    "80": {
+      "name": "Permanent Water Bodies",
+      "manning_roughness_n": 0.025
+    },
+    "90": {
+      "name": "Herbaceous Wetland / Flooded Vegetation",
+      "manning_roughness_n": 0.05
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "source": "Copernicus Data Space Ecosystem (dataspace.copernicus.eu) & Earth Search AWS STAC",
+    "bounds": {
+      "min_lat": 26.0,
+      "max_lat": 27.5,
+      "min_lon": 91.0,
+      "max_lon": 93.5
+    },
+    "total_real_s2_granules": 5,
+    "total_real_s1_granules": 0,
+    "is_real_live_data": true
+  },
+  "sentinel_2_optical": [
+    {
+      "granule_id": "S2C_45RZJ_20260912_0_L2A",
+      "sensing_timestamp": "2026-09-12T04:41:27.229000Z",
+      "cloud_cover_pct": 96.824878,
+      "tile_id": "MGRS-45RZJ",
+      "green_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/45/R/ZJ/2026/9/S2C_45RZJ_20260912_0_L2A/B03.tif",
+      "nir_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/45/R/ZJ/2026/9/S2C_45RZJ_20260912_0_L2A/B08.tif",
+      "is_real_live_data": true
+    },
+    {
+      "granule_id": "S2C_46RBP_20260912_0_L2A",
+      "sensing_timestamp": "2026-09-12T04:41:26.781000Z",
+      "cloud_cover_pct": 96.838164,
+      "tile_id": "MGRS-46RBP",
+      "green_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/BP/2026/9/S2C_46RBP_20260912_0_L2A/B03.tif",
+      "nir_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/BP/2026/9/S2C_46RBP_20260912_0_L2A/B08.tif",
+      "is_real_live_data": true
+    },
+    {
+      "granule_id": "S2C_46RCP_20260912_0_L2A",
+      "sensing_timestamp": "2026-09-12T04:41:23.345000Z",
+      "cloud_cover_pct": 100,
+      "tile_id": "MGRS-46RCP",
+      "green_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/CP/2026/9/S2C_46RCP_20260912_0_L2A/B03.tif",
+      "nir_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/CP/2026/9/S2C_46RCP_20260912_0_L2A/B08.tif",
+      "is_real_live_data": true
+    },
+    {
+      "granule_id": "S2C_46RDP_20260912_0_L2A",
+      "sensing_timestamp": "2026-09-12T04:41:19.376000Z",
+      "cloud_cover_pct": 100,
+      "tile_id": "MGRS-46RDP",
+      "green_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/DP/2026/9/S2C_46RDP_20260912_0_L2A/B03.tif",
+      "nir_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/DP/2026/9/S2C_46RDP_20260912_0_L2A/B08.tif",
+      "is_real_live_data": true
+    },
+    {
+      "granule_id": "S2C_46RBQ_20260912_0_L2A",
+      "sensing_timestamp": "2026-09-12T04:41:12.451000Z",
+      "cloud_cover_pct": 85.324323,
+      "tile_id": "MGRS-46RBQ",
+      "green_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/BQ/2026/9/S2C_46RBQ_20260912_0_L2A/B03.tif",
+      "nir_band_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/46/R/BQ/2026/9/S2C_46RBQ_20260912_0_L2A/B08.tif",
+      "is_real_live_data": true
+    }
+  ],
+  "sentinel_1_sar": []
+}

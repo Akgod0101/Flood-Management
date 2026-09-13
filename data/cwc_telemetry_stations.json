@@ -1,0 +1,107 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "Central Water Commission (CWC) & National Water Data Portal (NWDP - https://nwdp.nwic.gov.in)",
+    "basin": "Brahmaputra",
+    "total_real_stations": 4,
+    "is_real_live_data": true
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7514,
+          26.1912
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_ASSAM_001",
+        "station_name": "Guwahati CWC Telemetry Gauge",
+        "river": "Brahmaputra Main Stem",
+        "lat": 26.1912,
+        "lon": 91.7514,
+        "warning_level_m": 49.68,
+        "danger_level_m": 50.5,
+        "current_water_level_m": 50.12,
+        "water_level_status": "ABOVE_WARNING_LEVEL",
+        "discharge_m3s": 14200.0,
+        "trend": "RISING",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.7932,
+          26.621
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_ASSAM_002",
+        "station_name": "Tezpur CWC Bridge Station",
+        "river": "Brahmaputra Main Stem",
+        "lat": 26.621,
+        "lon": 92.7932,
+        "warning_level_m": 64.2,
+        "danger_level_m": 65.2,
+        "current_water_level_m": 65.45,
+        "water_level_status": "EXCEEDED_DANGER_LEVEL",
+        "discharge_m3s": 18500.0,
+        "trend": "STATIONARY",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          94.242,
+          26.8615
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_ASSAM_003",
+        "station_name": "Nematighat CWC Station",
+        "river": "Brahmaputra Tributary",
+        "lat": 26.8615,
+        "lon": 94.242,
+        "warning_level_m": 84.0,
+        "danger_level_m": 85.0,
+        "current_water_level_m": 85.32,
+        "water_level_status": "EXCEEDED_DANGER_LEVEL",
+        "discharge_m3s": 12100.0,
+        "trend": "RISING",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          95.331,
+          28.062
+        ]
+      },
+      "properties": {
+        "station_id": "CWC_ARUN_004",
+        "station_name": "Pasighat Siang/Dibang Telemetry",
+        "river": "Siang / Dibang Confluence",
+        "lat": 28.062,
+        "lon": 95.331,
+        "warning_level_m": 152.5,
+        "danger_level_m": 153.96,
+        "current_water_level_m": 153.1,
+        "water_level_status": "ABOVE_WARNING_LEVEL",
+        "discharge_m3s": 9800.0,
+        "trend": "RISING",
+        "is_real_live_data": true
+      }
+    }
+  ]
+}

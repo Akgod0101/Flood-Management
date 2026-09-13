@@ -1,0 +1,890 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "source": "NASA Earth Observatory Natural Event Tracker (EONET v3 - https://eonet.gsfc.nasa.gov)",
+    "total_real_events": 44,
+    "is_real_live_data": true
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.3,
+          16.4
+        ]
+      },
+      "properties": {
+        "id": "EONET_24184",
+        "title": "Tropical Storm Norbert",
+        "categories": "Severe Storms",
+        "date": "2026-09-10T06:00:00Z",
+        "lon": -117.3,
+        "lat": 16.4,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24184",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          123.69743,
+          -20.50307
+        ]
+      },
+      "properties": {
+        "id": "EONET_24245",
+        "title": "Wildfire in Australia 1031915",
+        "categories": "Wildfires",
+        "date": "2026-09-09T19:00:00Z",
+        "lon": 123.69743,
+        "lat": -20.50307,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24245",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          123.93079,
+          -17.97505
+        ]
+      },
+      "properties": {
+        "id": "EONET_24246",
+        "title": "Wildfire in Australia 1031916",
+        "categories": "Wildfires",
+        "date": "2026-09-09T19:00:00Z",
+        "lon": 123.93079,
+        "lat": -17.97505,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24246",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.49891,
+          -16.51419
+        ]
+      },
+      "properties": {
+        "id": "EONET_24247",
+        "title": "Wildfire in Angola 1031899",
+        "categories": "Wildfires",
+        "date": "2026-09-09T19:00:00Z",
+        "lon": 20.49891,
+        "lat": -16.51419,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24247",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          31.82301,
+          -10.94165
+        ]
+      },
+      "properties": {
+        "id": "EONET_24248",
+        "title": "Wildfire in Zambia 1031900",
+        "categories": "Wildfires",
+        "date": "2026-09-09T19:00:00Z",
+        "lon": 31.82301,
+        "lat": -10.94165,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24248",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          24.32406,
+          -23.63205
+        ]
+      },
+      "properties": {
+        "id": "EONET_24249",
+        "title": "Wildfire in Botswana 1031898",
+        "categories": "Wildfires",
+        "date": "2026-09-09T19:00:00Z",
+        "lon": 24.32406,
+        "lat": -23.63205,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24249",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.75669,
+          49.56674
+        ]
+      },
+      "properties": {
+        "id": "EONET_24218",
+        "title": "Wildfire in Kazakhstan 1031872",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 73.75669,
+        "lat": 49.56674,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24218",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.81109,
+          -15.69571
+        ]
+      },
+      "properties": {
+        "id": "EONET_24219",
+        "title": "Wildfire in Angola 1031879",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 18.81109,
+        "lat": -15.69571,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24219",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.69607,
+          -19.04437
+        ]
+      },
+      "properties": {
+        "id": "EONET_24220",
+        "title": "Wildfire in Namibia 1031888",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 16.69607,
+        "lat": -19.04437,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24220",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.52209,
+          -18.71829
+        ]
+      },
+      "properties": {
+        "id": "EONET_24221",
+        "title": "Wildfire in Namibia 1031892",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 20.52209,
+        "lat": -18.71829,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24221",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.64251,
+          -20.10201
+        ]
+      },
+      "properties": {
+        "id": "EONET_24250",
+        "title": "Wildfire in Botswana 1031902",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 21.64251,
+        "lat": -20.10201,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24250",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.61229,
+          -16.57292
+        ]
+      },
+      "properties": {
+        "id": "EONET_24251",
+        "title": "Wildfire in Angola 1031901",
+        "categories": "Wildfires",
+        "date": "2026-09-08T19:00:00Z",
+        "lon": 20.61229,
+        "lat": -16.57292,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24251",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -101.03687,
+          44.56145
+        ]
+      },
+      "properties": {
+        "id": "EONET_24191",
+        "title": "Wildfire Four Corner, Stanley, South Dakota",
+        "categories": "Wildfires",
+        "date": "2026-09-08T18:00:00Z",
+        "lon": -101.03687,
+        "lat": 44.56145,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24191",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.8275,
+          44.07472
+        ]
+      },
+      "properties": {
+        "id": "EONET_24190",
+        "title": "Wildfire Van Meter, Jones, South Dakota",
+        "categories": "Wildfires",
+        "date": "2026-09-08T17:14:00Z",
+        "lon": -100.8275,
+        "lat": 44.07472,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24190",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.67792,
+          34.84058
+        ]
+      },
+      "properties": {
+        "id": "EONET_24189",
+        "title": "Wildfire MEERS, Comanche, Oklahoma",
+        "categories": "Wildfires",
+        "date": "2026-09-08T16:57:00Z",
+        "lon": -98.67792,
+        "lat": 34.84058,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24189",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -94.2796,
+          29.6186
+        ]
+      },
+      "properties": {
+        "id": "EONET_24188",
+        "title": "Wildfire Unit 12 Middle, Jefferson, Texas",
+        "categories": "Wildfires",
+        "date": "2026-09-08T16:47:00Z",
+        "lon": -94.2796,
+        "lat": 29.6186,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24188",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.65308,
+          31.06018
+        ]
+      },
+      "properties": {
+        "id": "EONET_24185",
+        "title": "Wildfire Kurk, San Saba, Texas",
+        "categories": "Wildfires",
+        "date": "2026-09-08T16:39:00Z",
+        "lon": -98.65308,
+        "lat": 31.06018,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24185",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.5925,
+          34.41361
+        ]
+      },
+      "properties": {
+        "id": "EONET_24192",
+        "title": "Wildfire PINTO, Stephens, Oklahoma",
+        "categories": "Wildfires",
+        "date": "2026-09-08T12:44:00Z",
+        "lon": -97.5925,
+        "lat": 34.41361,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24192",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.32162,
+          41.95365
+        ]
+      },
+      "properties": {
+        "id": "EONET_24187",
+        "title": "Wildfire Moonshine, Albany, Wyoming",
+        "categories": "Wildfires",
+        "date": "2026-09-07T19:58:00Z",
+        "lon": -105.32162,
+        "lat": 41.95365,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24187",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.52357,
+          37.45195
+        ]
+      },
+      "properties": {
+        "id": "EONET_24194",
+        "title": "Wildfire in Türkiye 1031851",
+        "categories": "Wildfires",
+        "date": "2026-09-07T19:00:00Z",
+        "lon": 35.52357,
+        "lat": 37.45195,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24194",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.74008,
+          -12.45357
+        ]
+      },
+      "properties": {
+        "id": "EONET_24195",
+        "title": "Wildfire in The Democratic Republic of Congo, Zambia 1031852",
+        "categories": "Wildfires",
+        "date": "2026-09-07T19:00:00Z",
+        "lon": 29.74008,
+        "lat": -12.45357,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24195",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          130.41387,
+          -16.05019
+        ]
+      },
+      "properties": {
+        "id": "EONET_24196",
+        "title": "Wildfire in Australia 1031866",
+        "categories": "Wildfires",
+        "date": "2026-09-07T19:00:00Z",
+        "lon": 130.41387,
+        "lat": -16.05019,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24196",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.0754,
+          -10.67592
+        ]
+      },
+      "properties": {
+        "id": "EONET_24222",
+        "title": "Wildfire in Brazil 1031894",
+        "categories": "Wildfires",
+        "date": "2026-09-07T19:00:00Z",
+        "lon": -46.0754,
+        "lat": -10.67592,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24222",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -43.43256,
+          -9.74584
+        ]
+      },
+      "properties": {
+        "id": "EONET_24102",
+        "title": "Wildfire in Brazil 1031817",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": -43.43256,
+        "lat": -9.74584,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24102",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.88023,
+          -15.53746
+        ]
+      },
+      "properties": {
+        "id": "EONET_24103",
+        "title": "Wildfire in Angola 1031780",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 14.88023,
+        "lat": -15.53746,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24103",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          126.08468,
+          -17.2093
+        ]
+      },
+      "properties": {
+        "id": "EONET_24104",
+        "title": "Wildfire in Australia 1031816",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 126.08468,
+        "lat": -17.2093,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24104",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          27.00382,
+          -15.82592
+        ]
+      },
+      "properties": {
+        "id": "EONET_24159",
+        "title": "Wildfire in Zambia 1031826",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 27.00382,
+        "lat": -15.82592,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24159",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          30.78072,
+          37.1072
+        ]
+      },
+      "properties": {
+        "id": "EONET_24160",
+        "title": "Wildfire in Türkiye 1031844",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 30.78072,
+        "lat": 37.1072,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24160",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.50861,
+          -15.29721
+        ]
+      },
+      "properties": {
+        "id": "EONET_24197",
+        "title": "Wildfire in Australia 1031862",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 134.50861,
+        "lat": -15.29721,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24197",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          136.9541,
+          -16.29095
+        ]
+      },
+      "properties": {
+        "id": "EONET_24198",
+        "title": "Wildfire in Australia 1031867",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 136.9541,
+        "lat": -16.29095,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24198",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.36376,
+          -18.75628
+        ]
+      },
+      "properties": {
+        "id": "EONET_24199",
+        "title": "Wildfire in Namibia 1031861",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 19.36376,
+        "lat": -18.75628,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24199",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.25717,
+          -10.25211
+        ]
+      },
+      "properties": {
+        "id": "EONET_24223",
+        "title": "Wildfire in Brazil 1031889",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": -45.25717,
+        "lat": -10.25211,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24223",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          74.52283,
+          49.13924
+        ]
+      },
+      "properties": {
+        "id": "EONET_24224",
+        "title": "Wildfire in Kazakhstan 1031880",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 74.52283,
+        "lat": 49.13924,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24224",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.72551,
+          -13.88964
+        ]
+      },
+      "properties": {
+        "id": "EONET_24225",
+        "title": "Wildfire in Angola 1031881",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 16.72551,
+        "lat": -13.88964,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24225",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          31.10424,
+          -13.14919
+        ]
+      },
+      "properties": {
+        "id": "EONET_24252",
+        "title": "Wildfire in Zambia 1031904",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 31.10424,
+        "lat": -13.14919,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24252",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          30.84482,
+          -10.86785
+        ]
+      },
+      "properties": {
+        "id": "EONET_24253",
+        "title": "Wildfire in Zambia 1031903",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 30.84482,
+        "lat": -10.86785,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24253",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.48229,
+          -6.72399
+        ]
+      },
+      "properties": {
+        "id": "EONET_24254",
+        "title": "Wildfire in Brazil 1031912",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": -45.48229,
+        "lat": -6.72399,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24254",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          23.16395,
+          -17.22751
+        ]
+      },
+      "properties": {
+        "id": "EONET_24255",
+        "title": "Wildfire in Zambia 1031914",
+        "categories": "Wildfires",
+        "date": "2026-09-06T19:00:00Z",
+        "lon": 23.16395,
+        "lat": -17.22751,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24255",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -61.75675,
+          -13.25113
+        ]
+      },
+      "properties": {
+        "id": "EONET_24105",
+        "title": "Wildfire in Brazil 1031818",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": -61.75675,
+        "lat": -13.25113,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24105",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.95979,
+          -18.17693
+        ]
+      },
+      "properties": {
+        "id": "EONET_24106",
+        "title": "Wildfire in Australia 1031822",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": 137.95979,
+        "lat": -18.17693,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24106",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          145.62702,
+          -19.6637
+        ]
+      },
+      "properties": {
+        "id": "EONET_24107",
+        "title": "Wildfire in Australia 1031823",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": 145.62702,
+        "lat": -19.6637,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24107",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          56.76523,
+          51.25772
+        ]
+      },
+      "properties": {
+        "id": "EONET_24108",
+        "title": "Wildfire in Russian Federation 1031771",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": 56.76523,
+        "lat": 51.25772,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24108",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.87399,
+          -19.34883
+        ]
+      },
+      "properties": {
+        "id": "EONET_24109",
+        "title": "Wildfire in Namibia 1031781",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": 19.87399,
+        "lat": -19.34883,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24109",
+        "is_real_live_data": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.8353,
+          -16.41783
+        ]
+      },
+      "properties": {
+        "id": "EONET_24161",
+        "title": "Wildfire in Australia 1031845",
+        "categories": "Wildfires",
+        "date": "2026-09-05T19:00:00Z",
+        "lon": 144.8353,
+        "lat": -16.41783,
+        "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_24161",
+        "is_real_live_data": true
+      }
+    }
+  ]
+}
